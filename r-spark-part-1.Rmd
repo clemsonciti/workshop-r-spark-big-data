@@ -1,0 +1,138 @@
+---
+title: "Introduction to R and Spark for Big Data Analytics Part 1"
+output: html_notebook
+---
+ 
+#### Spark in a nutshell
+
+- Spark is an implementation of the MapReduce programming paradigm that operates on in-memory data and allows data reuse across multiple computations. 
+- Performance of Spark is significantly better than its predecessor, Hadoop MapReduce. 
+- Spark's primary data abstraction is called a Resilient Distributed Dataset (RDD):
+  - Read-only, partitioned collection of records
+  - Created through deterministic operations on data (loading from stable storage or transforming from other RDDs)
+  - Do not need to be materialized at all times and are recoverable via data lineage
+
+#### Spark and R
+
+- Spark's ability to inherently leverage and combine CPU and memory across computing nodes address R's memory limitation and sequential processing issues. 
+- There exists various bindings between R and Spark. 
+- Package **sparklyr** is an open source solution from RStudio's creators. This package offers the following advantages in combining Spark and R:
+  - Complete **dplyr** backend to support transparent data manipulation on Spark cluster from inside R. 
+  - Implementation to support Spark's distributed machine learning library from R. 
+  - Extensions that allow users to call the full Spark API from inside R and access other custom Spark packages. 
+
+#### Learning Objectives
+
+- Know how to deploy a Spark environment inside R using the **sparklyr** package
+- Know how to manipulate data inside Spark from R
+  - Understand the differences between data on the local R environment versus data inside the Spark environment
+- Know how to write and execute R codes inside the Spark environment
+- Know how to access Spark API from inside R
+
+#### Materials on this notebook is based on the following resources:
+
+- [sparklyr: R interface for Apache Spark](http://spark.rstudio.com)
+- [Airline Data Set](http://stat-computing.org/dataexpo/2009/the-data.html)
+
+# Introduction to *sparklyr*
+
+## Where am I?
+
+```{r}
+getwd()
+```
+
+## Clear global environment
+
+```{r}
+rm(list = ls())
+```
+
+## Setup *sparklyr*
+
+
+```{r}
+setupLibrary <- function(libraryName){
+  if (!require(libraryName, character.only = TRUE)){
+    install.packages(libraryName, dep = TRUE)
+    if (!require(libraryName, character.only = TRUE)){
+      print('Package not found')
+    }
+  } else {
+    print('Package is loaded')
+  }
+}
+
+setupLibrary('sparklyr')
+```
+
+## Spark environment on Palmetto
+
+With the **hdp/0.1** module, Palmetto users can have full access to Cypress, Clemson's Hadoop Big Data infrastructure, from any computing node on Palmetto. To ensure that this module is available to R, run the followings:
+
+```{bash}
+if grep -Fxq 'module load hdp' ~/.bashrc
+then 
+  if grep -Fxq 'cypress-kinit' ~/.bashrc
+  then
+    echo "User account is properly configured"
+  else
+    echo 'cypress-kinit' >> ~/.bashrc
+  fi
+else
+  echo 'module load hdp' >> ~/.bashrc
+  echo 'cypress-kinit' >> ~/.bashrc
+fi
+```
+
+```{bash}
+spark-submit --help
+```
+
+```{r}
+sc <- spark_connect(master = 'yarn', 
+                    config = list('spark.driver.memory'='8G',
+                                  'spark.executor.instances'=4,
+                                  'spark.executor.cores'=8,
+                                  'spark.executor.memory'='8G')
+                    )
+```
+
+The above chunk will spawn a Spark cluster inside Cypress that has a total of 32 computing cores and 32 GB of memory. The Spark driver accessiable from R's local environment has 8GB memory. 
+
+To customize the Spark environment configurations, you can combine *sparklyr.shell.* with the corresponding options from *spark-submit*. 
+
+```{r}
+airline_tlb <- spark_read_csv(sc, name = 'airline_data',
+                              path = '/repository/airlines/data/',
+                              delimiter = ',')
+```
+
+Where is the data?
+
+```{r}
+dim(airline_tlb)
+```
+
+```{r}
+sdf_dim(airline_tlb)
+```
+
+```{r}
+object.size(airline_tlb)
+```
+
+
+
+```{r}
+weight_lb
+```
+
+```{r}
+weight_kg <- 90
+```
+
+
+```{r}
+spark_disconnect(sc)
+```
