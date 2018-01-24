@@ -12,3 +12,10 @@ else
   echo 'module load hdp' >> ~/.bashrc
   echo 'cypress-kinit' >> ~/.bashrc
 fi
+
+if grep -Fxq 'module load hdp' ~/.jhubrc
+then 
+  echo 'User account is properly configured'
+else
+  echo 'module load hdp' >> ~/.jhubrc
+fi
