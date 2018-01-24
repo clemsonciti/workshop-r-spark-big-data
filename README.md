@@ -11,6 +11,8 @@ If you do not currently have an account, please apply for an account using our [
   - For Rank, please take care to select a correct rank. If you are not a tenured-track faculty, please select **Staff**
   - For Sponsor's Clemson Email (this box appears if you are not a tenured-track faculty), please enter the email address of the instructor of the workshop (LNGO@CLEMSON.EDU). 
   - For Course Information, please enter *Big Data Analytics Workshop using R and Spark*
+  
+Prior to running the note books, you will need to run the `setup.sh` file.
  
 
   
