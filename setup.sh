@@ -15,13 +15,7 @@ fi
 
 if grep -Fxq 'module load hdp' ~/.jhubrc
 then 
-  if grep -Fxq 'cypress-kinit' ~/.jhubrc
-  then
-    echo 'User account is properly configured'
-  else
-    echo 'cypress-kinit' >> ~/.jhubrc
-  fi
+  echo 'User account is properly configured'
 else
   echo 'module load hdp' >> ~/.jhubrc
-  echo 'cypress-kinit' >> ~/.jhubrc
 fi
